@@ -7,13 +7,18 @@
   const overlay = document.getElementById('overlay');
   const urlInput = document.getElementById('urlInput');
   const iconInput = document.getElementById('iconInput');
+  const iconFile = document.getElementById('iconFile');
+  const iconPreview = document.getElementById('iconPreview');
+  const uploadFilename = document.getElementById('uploadFilename');
+  const uploadClear = document.getElementById('uploadClear');
   const errorMsg = document.getElementById('errorMsg');
   const addBtn = document.getElementById('addBtn');
   const cancelBtn = document.getElementById('cancelBtn');
   const submitBtn = document.getElementById('submitBtn');
 
   const STORAGE_KEY = 'dock-apps';
-  let apps = []; // {id, url, key, domain, name, faviconUrl, r}
+  let apps = []; // {id, url, key, domain, name, iconCandidates, color, initial, r}
+  let uploadedIcon = null; // data URL of a user-uploaded icon, if any, for the app currently being added
 
   function hashStr(s){
     let h = 0;
@@ -23,7 +28,7 @@
   function radiusFor(key){
     return 34 + (hashStr(key) % 20); // 34–54px
   }
-  const PALETTE = ['#c9a05a','#4fa8a0','#7d6bb0','#c76b6b','#6b9bc7','#8fae67','#b8865b','#5f8f8a'];
+  const PALETTE = ['#ff2bd6','#05f2f2','#9b30ff','#ff6b6b','#00c2ff','#7cff5c','#ffb020','#ff5ca8'];
   function colorFor(key){
     return PALETTE[hashStr(key) % PALETTE.length];
   }
@@ -72,6 +77,34 @@
       if (!u.hostname.includes('.')) return null;
       return u;
     } catch(e){ return null; }
+  }
+
+  // Resize an uploaded image down to a small square PNG before storing it,
+  // so a full-resolution photo doesn't blow through localStorage's ~5–10MB
+  // quota after a handful of uploads. Output lands around 5–20KB regardless
+  // of the original file size.
+  function resizeImageFile(file, maxSize = 128){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = maxSize;
+          canvas.height = maxSize;
+          const ctx = canvas.getContext('2d');
+          const scale = Math.min(maxSize / img.width, maxSize / img.height, 1) || 1;
+          const w = img.width * scale, h = img.height * scale;
+          ctx.clearRect(0, 0, maxSize, maxSize);
+          ctx.drawImage(img, (maxSize - w) / 2, (maxSize - h) / 2, w, h);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => reject(new Error('That file isn\'t a readable image'));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error('Could not read that file'));
+      reader.readAsDataURL(file);
+    });
   }
 
   // Plain localStorage so the dock survives page refreshes, browser
@@ -221,11 +254,47 @@
   }
 
   // ---- Modal wiring ----
+  function resetUpload(){
+    uploadedIcon = null;
+    iconFile.value = '';
+    iconPreview.src = '';
+    iconPreview.classList.remove('show');
+    uploadFilename.textContent = 'No file selected';
+    uploadClear.classList.remove('show');
+  }
+  iconFile.addEventListener('change', async () => {
+    const file = iconFile.files && iconFile.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')){
+      errorMsg.textContent = 'Please choose an image file';
+      resetUpload();
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024){
+      errorMsg.textContent = 'That image is too large — please pick one under 8MB';
+      resetUpload();
+      return;
+    }
+    try{
+      errorMsg.textContent = '';
+      uploadedIcon = await resizeImageFile(file);
+      iconPreview.src = uploadedIcon;
+      iconPreview.classList.add('show');
+      uploadFilename.textContent = file.name;
+      uploadClear.classList.add('show');
+    } catch(e){
+      errorMsg.textContent = e.message || 'Could not process that image';
+      resetUpload();
+    }
+  });
+  uploadClear.addEventListener('click', resetUpload);
+
   function openModal(){
     overlay.classList.add('open');
     errorMsg.textContent = '';
     urlInput.value = '';
     iconInput.value = '';
+    resetUpload();
     setTimeout(() => urlInput.focus(), 50);
   }
   function closeModal(){ overlay.classList.remove('open'); }
@@ -254,7 +323,7 @@
       key,
       domain: parsed.hostname,
       name,
-      iconCandidates: customIcon ? [customIcon] : faviconCandidates(parsed),
+      iconCandidates: uploadedIcon ? [uploadedIcon] : (customIcon ? [customIcon] : faviconCandidates(parsed)),
       color: colorFor(key),
       initial: name.charAt(0).toUpperCase(),
       r: radiusFor(key),

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dock — your apps, one board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <link rel="stylesheet" href="./dock.css">
 </head>
@@ -43,8 +43,21 @@
     <p class="modal-sub">Its favicon will be pulled in automatically.</p>
     <label class="field-label" for="urlInput">Website URL</label>
     <input id="urlInput" type="text" placeholder="e.g. github.com or app.yoursaas.com" autocomplete="off">
-    <label class="field-label" for="iconInput" style="margin-top:14px;">Custom icon URL <span style="text-transform:none; opacity:.7;">(optional, if auto-detect fails)</span></label>
+
+    <label class="field-label" for="iconInput" style="margin-top:14px;">Custom icon URL <span class="label-note">(optional)</span></label>
     <input id="iconInput" type="text" placeholder="e.g. https://.../icon.png" autocomplete="off">
+
+    <div class="field-divider"><span>or</span></div>
+
+    <label class="field-label" for="iconFile">Upload your own icon <span class="label-note">(optional)</span></label>
+    <div class="upload-row">
+      <label class="upload-btn" for="iconFile">Choose file</label>
+      <input id="iconFile" type="file" accept="image/*" hidden>
+      <img id="iconPreview" alt="icon preview">
+      <span class="upload-filename" id="uploadFilename">No file selected</span>
+      <button type="button" class="upload-clear" id="uploadClear" title="Remove uploaded icon">✕</button>
+    </div>
+
     <p class="error-msg" id="errorMsg"></p>
     <div class="modal-actions">
       <button class="btn" id="cancelBtn">Cancel</button>
