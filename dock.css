@@ -128,6 +128,37 @@ h1 span{
   transform: translateX(-50%);
 }
 
+.io-controls{
+  position:fixed;
+  top:24px; right:24px;
+  z-index:50;
+  display:flex;
+  gap:10px;
+}
+.io-btn{
+  width:44px; height:44px;
+  border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, #1a1430, #0c0a16 70%);
+  border: 1.5px solid var(--neon-purple);
+  box-shadow:
+    0 0 8px rgba(155,48,255,0.4),
+    inset 0 0 8px rgba(155,48,255,0.12);
+  color: var(--neon-purple);
+  font-size:17px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
+}
+.io-btn:hover{
+  transform: translateY(-2px) scale(1.05);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow:
+    0 0 12px rgba(5,242,242,0.5),
+    inset 0 0 10px rgba(5,242,242,0.18);
+}
+.io-btn:active{ transform: translateY(0) scale(0.98); }
+
 main{
   flex:1;
   width:100%;

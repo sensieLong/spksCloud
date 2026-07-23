@@ -13,6 +13,9 @@
   const uploadClear = document.getElementById('uploadClear');
   const errorMsg = document.getElementById('errorMsg');
   const addBtn = document.getElementById('addBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFile = document.getElementById('importFile');
   const cancelBtn = document.getElementById('cancelBtn');
   const submitBtn = document.getElementById('submitBtn');
 
@@ -79,6 +82,29 @@
     } catch(e){ return null; }
   }
 
+  // Turns a config-file entry into a fully-formed app object. Accepts either
+  // a minimal hand-written entry (just a "url", optionally "name"/"icon")
+  // or a complete previously-exported entry — anything missing gets filled
+  // in the same way a manually-added app would be.
+  function normalizeAppEntry(raw){
+    if (!raw || !raw.url) return null;
+    const parsed = normalizeUrl(raw.url);
+    if (!parsed) return null;
+    const key = raw.key || keyFor(parsed);
+    const name = raw.name || niceName(parsed);
+    return {
+      id: raw.id || (key + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7)),
+      url: raw.url,
+      key,
+      domain: raw.domain || parsed.hostname,
+      name,
+      iconCandidates: raw.iconCandidates || (raw.icon ? [raw.icon] : faviconCandidates(parsed)),
+      color: raw.color || colorFor(key),
+      initial: raw.initial || name.charAt(0).toUpperCase(),
+      r: raw.r || radiusFor(key),
+    };
+  }
+
   // Resize an uploaded image down to a small square PNG before storing it,
   // so a full-resolution photo doesn't blow through localStorage's ~5–10MB
   // quota after a handful of uploads. Output lands around 5–20KB regardless
@@ -107,13 +133,42 @@
     });
   }
 
-  // Plain localStorage so the dock survives page refreshes, browser
-  // restarts, and even a full computer restart — it's tied to this file's
-  // origin in the browser, not to a session.
-  function loadApps(){
+  const CONFIG_FILE = './spksConfig.json';
+
+  // On a brand-new device/browser (no dock-apps in localStorage yet), pull
+  // the repo's spksConfig.json so the dock shows up pre-populated before
+  // the person adds anything themselves. Once localStorage has data, this
+  // is never consulted again — local edits always win from then on.
+  async function loadDefaultConfig(){
+    try{
+      const res = await fetch(CONFIG_FILE, {cache: 'no-store'});
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (!Array.isArray(data)) return [];
+      const seen = new Set();
+      const out = [];
+      data.forEach(raw => {
+        const app = normalizeAppEntry(raw);
+        if (app && !seen.has(app.key)){ seen.add(app.key); out.push(app); }
+      });
+      return out;
+    } catch(e){
+      // Missing file, bad JSON, or (if opened via file:// instead of a real
+      // server/GitHub Pages) a blocked local fetch — fail quietly to an
+      // empty dock rather than breaking the page.
+      return [];
+    }
+  }
+
+  async function loadApps(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
-      apps = raw ? JSON.parse(raw) : [];
+      if (raw){
+        apps = JSON.parse(raw);
+      } else {
+        apps = await loadDefaultConfig();
+        if (apps.length) saveApps();
+      }
     } catch(e){ apps = []; }
     render();
   }
@@ -245,6 +300,56 @@
     saveApps();
     render();
   }
+
+  // ---- Export / Import (carry your dock between devices) ----
+  function exportApps(){
+    // Strip transient layout coordinates before exporting — only the
+    // durable app data should travel between devices.
+    const clean = apps.map(({_x, _y, ...rest}) => rest);
+    const blob = new Blob([JSON.stringify(clean, null, 2)], {type: 'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'dock-apps-backup.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function importApps(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      let incoming;
+      try{ incoming = JSON.parse(reader.result); }
+      catch(e){ alert('That file isn\'t valid dock export JSON.'); return; }
+      if (!Array.isArray(incoming)){ alert('That file isn\'t a valid dock export.'); return; }
+
+      const existingKeys = new Set(apps.map(a => a.key));
+      let added = 0;
+      incoming.forEach(a => {
+        if (a && a.key && !existingKeys.has(a.key)){
+          apps.push(a);
+          existingKeys.add(a.key);
+          added++;
+        }
+      });
+      saveApps();
+      render();
+      alert(added
+        ? `Imported ${added} app${added === 1 ? '' : 's'}.`
+        : 'Nothing new to import — those apps are already docked.');
+    };
+    reader.onerror = () => alert('Could not read that file.');
+    reader.readAsText(file);
+  }
+
+  exportBtn.addEventListener('click', exportApps);
+  importBtn.addEventListener('click', () => importFile.click());
+  importFile.addEventListener('change', () => {
+    const file = importFile.files && importFile.files[0];
+    if (file) importApps(file);
+    importFile.value = '';
+  });
 
   let ro;
   function watchResize(){

@@ -1,0 +1,80 @@
+[
+  {
+    "id": "https://sensielong.github.io/sp-imp-1784796416203",
+    "url": "https://sensielong.github.io/sp-imp/",
+    "key": "https://sensielong.github.io/sp-imp",
+    "domain": "sensielong.github.io",
+    "name": "Sp-imp",
+    "iconCandidates": [
+      "https://sensielong.github.io/sp-imp/spiokoksImp.ico"
+    ],
+    "color": "#b8865b",
+    "initial": "S",
+    "r": 40
+  },
+  {
+    "id": "https://sensielong.github.io/iGuhitPro-1784796486059",
+    "url": "https://sensielong.github.io/iGuhitPro/",
+    "key": "https://sensielong.github.io/iGuhitPro",
+    "domain": "sensielong.github.io",
+    "name": "IGuhitPro",
+    "iconCandidates": [
+      "https://sensielong.github.io/iGuhitPro/iGuhitx logo.ico"
+    ],
+    "color": "#8fae67",
+    "initial": "I",
+    "r": 35
+  },
+  {
+    "id": "https://sensielong.github.io/sp-bld-1784796577779",
+    "url": "https://sensielong.github.io/sp-bld/",
+    "key": "https://sensielong.github.io/sp-bld",
+    "domain": "sensielong.github.io",
+    "name": "Sp-bld",
+    "iconCandidates": [
+      "https://sensielong.github.io/sp-bld/spiokoksBleed.ico"
+    ],
+    "color": "#c9a05a",
+    "initial": "S",
+    "r": 50
+  },
+  {
+    "id": "https://sensielong.github.io/sp-pdv-1784796623027",
+    "url": "https://sensielong.github.io/sp-pdv/",
+    "key": "https://sensielong.github.io/sp-pdv",
+    "domain": "sensielong.github.io",
+    "name": "Sp-pdv",
+    "iconCandidates": [
+      "https://sensielong.github.io/sp-pdv/spiokoksPdf.ico"
+    ],
+    "color": "#c9a05a",
+    "initial": "S",
+    "r": 46
+  },
+  {
+    "id": "https://sensielong.github.io/sp-raffgen-1784796650451",
+    "url": "https://sensielong.github.io/sp-raffgen/",
+    "key": "https://sensielong.github.io/sp-raffgen",
+    "domain": "sensielong.github.io",
+    "name": "Sp-raffgen",
+    "iconCandidates": [
+      "https://sensielong.github.io/sp-raffgen/raffleIcon.ico"
+    ],
+    "color": "#4fa8a0",
+    "initial": "S",
+    "r": 39
+  },
+  {
+    "id": "https://sensielong.github.io/sp-boxy-1784796787307",
+    "url": "https://sensielong.github.io/sp-boxy/",
+    "key": "https://sensielong.github.io/sp-boxy",
+    "domain": "sensielong.github.io",
+    "name": "Sp-boxy",
+    "iconCandidates": [
+      "https://sensielong.github.io/sp-boxy/Assets/boxy.ico"
+    ],
+    "color": "#c9a05a",
+    "initial": "S",
+    "r": 38
+  }
+]
