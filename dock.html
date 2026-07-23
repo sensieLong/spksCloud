@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dock — your apps, one board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<link rel="stylesheet" href="./dock.css">
+</head>
+<body>
+
+<button class="add-btn" id="addBtn" aria-label="Add a new app to the dock" title="Add app">+</button>
+
+<header>
+  <div class="titleblock">
+    <p class="eyebrow">Spiokoks control panel</p>
+    <h1><span>DOCK</span> — your apps, one board</h1>
+    <p class="subtitle" id="countLabel">0 apps docked</p>
+  </div>
+</header>
+
+<main>
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+      <div class="badge-layer" id="badgeLayer"></div>
+      <div class="empty-state" id="emptyState">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+        </svg>
+        <p class="lead">Nothing docked yet</p>
+        <p class="hint">Hit the <b>+</b> in the top-left corner to add your first app</p>
+      </div>
+    </div>
+    <p class="stage-caption" id="stageCaption"></p>
+  </div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>Add an app</h2>
+    <p class="modal-sub">Its favicon will be pulled in automatically.</p>
+    <label class="field-label" for="urlInput">Website URL</label>
+    <input id="urlInput" type="text" placeholder="e.g. github.com or app.yoursaas.com" autocomplete="off">
+    <label class="field-label" for="iconInput" style="margin-top:14px;">Custom icon URL <span style="text-transform:none; opacity:.7;">(optional, if auto-detect fails)</span></label>
+    <input id="iconInput" type="text" placeholder="e.g. https://.../icon.png" autocomplete="off">
+    <p class="error-msg" id="errorMsg"></p>
+    <div class="modal-actions">
+      <button class="btn" id="cancelBtn">Cancel</button>
+      <button class="btn primary" id="submitBtn">Add to dock</button>
+    </div>
+  </div>
+</div>
+
+<script src="./dock.js"></script>
+</body>
+</html>
